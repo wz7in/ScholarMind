@@ -6,6 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A10D04B82F63E48E00E1FE28 /* ManualImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10D04B72F63E48E00E1FE28 /* ManualImportView.swift */; };
+		A10D04BA2F63FDA400E1FE28 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10D04B92F63FDA400E1FE28 /* ContentView.swift */; };
+		A10D04D12F66684200E1FE28 /* CategoryLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10D04CF2F66684200E1FE28 /* CategoryLibraryView.swift */; };
+		A10D04D22F66684200E1FE28 /* ResearchLabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10D04D02F66684200E1FE28 /* ResearchLabView.swift */; };
+		A119DCEC2F62ABBC002A24FD /* Paper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119DCE02F62ABBC002A24FD /* Paper.swift */; };
+		A119DCED2F62ABBC002A24FD /* PaperDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119DCE42F62ABBC002A24FD /* PaperDetailView.swift */; };
+		A119DCF12F62AE5A002A24FD /* ScholarMindApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119DCF02F62ADF4002A24FD /* ScholarMindApp.swift */; };
+		A119DCF32F62B0F9002A24FD /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119DCF22F62B0F9002A24FD /* LoginView.swift */; };
+		A119DCF62F6321AB002A24FD /* ImmersiveChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119DCF52F6321AB002A24FD /* ImmersiveChatView.swift */; };
+		A119DCF82F63B6F7002A24FD /* UnifiedReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119DCF72F63B6F7002A24FD /* UnifiedReaderView.swift */; };
+		A119DCFA2F63C0BC002A24FD /* MarkdownWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A119DCF92F63C0BC002A24FD /* MarkdownWebView.swift */; };
+		A1A1C9C92F6D443000920399 /* LabThinkingBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A1C9C82F6D443000920399 /* LabThinkingBubble.swift */; };
+		A1E708E42F73E89000FC2F1D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1E708E32F73E89000FC2F1D /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A119DCC32F62AB6C002A24FD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,25 +40,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A119DCB52F62AB6B002A24FD /* ScholarMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScholarMind.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10D04B72F63E48E00E1FE28 /* ManualImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualImportView.swift; sourceTree = "<group>"; };
+		A10D04B92F63FDA400E1FE28 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A10D04CF2F66684200E1FE28 /* CategoryLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryLibraryView.swift; sourceTree = "<group>"; };
+		A10D04D02F66684200E1FE28 /* ResearchLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchLabView.swift; sourceTree = "<group>"; };
+		A119DCB52F62AB6B002A24FD /* ScholarMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = ScholarMind.app; path = "/Users/wzqin/Library/CloudStorage/OneDrive-个人/ScholarMind/ScholarMind/build/Debug/ScholarMind.app"; sourceTree = "<absolute>"; };
 		A119DCC22F62AB6C002A24FD /* ScholarMindTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScholarMindTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A119DCCC2F62AB6D002A24FD /* ScholarMindUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScholarMindUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A119DCDF2F62ABBC002A24FD /* ScholarMind.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ScholarMind.xcodeproj; sourceTree = "<group>"; };
+		A119DCE02F62ABBC002A24FD /* Paper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paper.swift; sourceTree = "<group>"; };
+		A119DCE42F62ABBC002A24FD /* PaperDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperDetailView.swift; sourceTree = "<group>"; };
+		A119DCF02F62ADF4002A24FD /* ScholarMindApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScholarMindApp.swift; sourceTree = "<group>"; };
+		A119DCF22F62B0F9002A24FD /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		A119DCF52F6321AB002A24FD /* ImmersiveChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImmersiveChatView.swift; sourceTree = "<group>"; };
+		A119DCF72F63B6F7002A24FD /* UnifiedReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedReaderView.swift; sourceTree = "<group>"; };
+		A119DCF92F63C0BC002A24FD /* MarkdownWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownWebView.swift; sourceTree = "<group>"; };
+		A1A1C9C82F6D443000920399 /* LabThinkingBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabThinkingBubble.swift; sourceTree = "<group>"; };
+		A1E708E32F73E89000FC2F1D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A119DCB72F62AB6B002A24FD /* ScholarMind */ = {
+		A1F825A82F76E22F00B015A5 /* scripts */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ScholarMind;
-			sourceTree = "<group>";
-		};
-		A119DCC52F62AB6C002A24FD /* ScholarMindTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ScholarMindTests;
-			sourceTree = "<group>";
-		};
-		A119DCCF2F62AB6D002A24FD /* ScholarMindUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ScholarMindUITests;
+			path = scripts;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,20 +95,68 @@
 		A119DCAC2F62AB6B002A24FD = {
 			isa = PBXGroup;
 			children = (
-				A119DCB72F62AB6B002A24FD /* ScholarMind */,
-				A119DCC52F62AB6C002A24FD /* ScholarMindTests */,
-				A119DCCF2F62AB6D002A24FD /* ScholarMindUITests */,
+				A119DCF02F62ADF4002A24FD /* ScholarMindApp.swift */,
 				A119DCB62F62AB6B002A24FD /* Products */,
+				A119DCDF2F62ABBC002A24FD /* ScholarMind.xcodeproj */,
+				A119DCE82F62ABBC002A24FD /* ScholarMindApp */,
+				A1E708E32F73E89000FC2F1D /* Assets.xcassets */,
+				A1F825A82F76E22F00B015A5 /* scripts */,
 			);
 			sourceTree = "<group>";
 		};
 		A119DCB62F62AB6B002A24FD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A119DCB52F62AB6B002A24FD /* ScholarMind.app */,
 				A119DCC22F62AB6C002A24FD /* ScholarMindTests.xctest */,
 				A119DCCC2F62AB6D002A24FD /* ScholarMindUITests.xctest */,
 			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A119DCE12F62ABBC002A24FD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A119DCE02F62ABBC002A24FD /* Paper.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A119DCE22F62ABBC002A24FD /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A119DCE52F62ABBC002A24FD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A1A1C9C82F6D443000920399 /* LabThinkingBubble.swift */,
+				A10D04CF2F66684200E1FE28 /* CategoryLibraryView.swift */,
+				A10D04D02F66684200E1FE28 /* ResearchLabView.swift */,
+				A10D04B92F63FDA400E1FE28 /* ContentView.swift */,
+				A10D04B72F63E48E00E1FE28 /* ManualImportView.swift */,
+				A119DCF92F63C0BC002A24FD /* MarkdownWebView.swift */,
+				A119DCF52F6321AB002A24FD /* ImmersiveChatView.swift */,
+				A119DCF22F62B0F9002A24FD /* LoginView.swift */,
+				A119DCF72F63B6F7002A24FD /* UnifiedReaderView.swift */,
+				A119DCE42F62ABBC002A24FD /* PaperDetailView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A119DCE82F62ABBC002A24FD /* ScholarMindApp */ = {
+			isa = PBXGroup;
+			children = (
+				A119DCE12F62ABBC002A24FD /* Models */,
+				A119DCE22F62ABBC002A24FD /* ViewModels */,
+				A119DCE52F62ABBC002A24FD /* Views */,
+			);
+			path = ScholarMindApp;
+			sourceTree = "<group>";
+		};
+		A119DCE92F62ABBC002A24FD /* Products */ = {
+			isa = PBXGroup;
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -108,7 +176,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A119DCB72F62AB6B002A24FD /* ScholarMind */,
+				A1F825A82F76E22F00B015A5 /* scripts */,
 			);
 			name = ScholarMind;
 			packageProductDependencies = (
@@ -130,9 +198,6 @@
 			dependencies = (
 				A119DCC42F62AB6C002A24FD /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				A119DCC52F62AB6C002A24FD /* ScholarMindTests */,
-			);
 			name = ScholarMindTests;
 			packageProductDependencies = (
 			);
@@ -152,9 +217,6 @@
 			);
 			dependencies = (
 				A119DCCE2F62AB6D002A24FD /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				A119DCCF2F62AB6D002A24FD /* ScholarMindUITests */,
 			);
 			name = ScholarMindUITests;
 			packageProductDependencies = (
@@ -198,6 +260,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A119DCB62F62AB6B002A24FD /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = A119DCE92F62ABBC002A24FD /* Products */;
+					ProjectRef = A119DCDF2F62ABBC002A24FD /* ScholarMind.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				A119DCB42F62AB6B002A24FD /* ScholarMind */,
@@ -212,6 +280,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1E708E42F73E89000FC2F1D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +305,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A119DCF12F62AE5A002A24FD /* ScholarMindApp.swift in Sources */,
+				A119DCF82F63B6F7002A24FD /* UnifiedReaderView.swift in Sources */,
+				A119DCEC2F62ABBC002A24FD /* Paper.swift in Sources */,
+				A119DCF62F6321AB002A24FD /* ImmersiveChatView.swift in Sources */,
+				A119DCFA2F63C0BC002A24FD /* MarkdownWebView.swift in Sources */,
+				A10D04B82F63E48E00E1FE28 /* ManualImportView.swift in Sources */,
+				A10D04BA2F63FDA400E1FE28 /* ContentView.swift in Sources */,
+				A119DCED2F62ABBC002A24FD /* PaperDetailView.swift in Sources */,
+				A119DCF32F62B0F9002A24FD /* LoginView.swift in Sources */,
+				A1A1C9C92F6D443000920399 /* LabThinkingBubble.swift in Sources */,
+				A10D04D12F66684200E1FE28 /* CategoryLibraryView.swift in Sources */,
+				A10D04D22F66684200E1FE28 /* ResearchLabView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,12 +473,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -422,12 +503,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
