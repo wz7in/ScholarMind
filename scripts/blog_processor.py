@@ -59,12 +59,28 @@ def summarize_blog(url, title, text, storage_root, engine="Gemini"):
     
     env = os.environ.copy()
     env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" + os.pathsep + env.get("PATH", "")
+    
+    # 注入多重代理变量
+    active_proxy = storage_root if engine == "PROXY_PASSTHROUGH" else None # 修复潜在参数错位
+    # 注意：在实际调用中，env 已经包含了 SCHOLAR_PROXY
+    if os.getenv("SCHOLAR_PROXY"):
+        p_val = os.getenv("SCHOLAR_PROXY")
+        for p in ["http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"]:
+            env[p] = p_val
+    
     bin_name = "gemini"
     if engine.lower() == "claude": bin_name = "claude"
     elif engine.lower() == "codex": bin_name = "codex"
     
+    # 构建命令
+    cli_path = f"/opt/homebrew/bin/{bin_name}"
+    if bin_name == "codex":
+        cli_cmd = [cli_path, "exec", "--skip-git-repo-check", prompt]
+    else:
+        cli_cmd = [cli_path, "-p", prompt]
+    
     try:
-        res = subprocess.run([f"/opt/homebrew/bin/{bin_name}", "-p", prompt], capture_output=True, text=True, env=env)
+        res = subprocess.run(cli_cmd, capture_output=True, text=True, env=env)
         full = res.stdout
         summary = full.split("JSON_START")[0].strip()
         metadata = {}

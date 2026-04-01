@@ -339,9 +339,15 @@ struct ResearchLabView: View {
             """
 
             let process = Process()
-            let aiCliUrl = URL(fileURLWithPath: aiCliPath).appendingPathComponent(selectedEngine.lowercased())
+            let binName = selectedEngine.lowercased()
+            let aiCliUrl = URL(fileURLWithPath: aiCliPath).appendingPathComponent(binName)
             process.executableURL = URL(fileURLWithPath: aiCliUrl.path)
-            process.arguments = ["-p", prompt]
+            
+            if binName == "codex" {
+                process.arguments = ["exec", "--skip-git-repo-check", prompt]
+            } else {
+                process.arguments = ["-p", prompt]
+            }
 
             var env = ProcessInfo.processInfo.environment
             env["PATH"] = "\(aiCliPath):/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:\(env["PATH"] ?? "")"

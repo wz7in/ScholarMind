@@ -191,13 +191,19 @@ struct ChatPanel: View {
         isSending = true
         DispatchQueue.global(qos: .userInitiated).async {
             let process = Process()
-            let aiCliUrl = URL(fileURLWithPath: aiCliPath).appendingPathComponent(selectedEngine.lowercased())
+            let binName = selectedEngine.lowercased()
+            let aiCliUrl = URL(fileURLWithPath: aiCliPath).appendingPathComponent(binName)
             process.executableURL = URL(fileURLWithPath: aiCliUrl.path)
             var env = ProcessInfo.processInfo.environment
             env["PATH"] = "\(aiCliPath):/usr/local/bin:\(env["PATH"] ?? "")"
             process.environment = env
             let prompt = "Context: Paper '\(paper.title)'. Question: \(userMsg)"
-            process.arguments = ["-p", prompt]
+            
+            if binName == "codex" {
+                process.arguments = ["exec", "--skip-git-repo-check", prompt]
+            } else {
+                process.arguments = ["-p", prompt]
+            }
             let pipe = Pipe()
             process.standardOutput = pipe
             try? process.run()

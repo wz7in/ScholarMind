@@ -99,10 +99,12 @@ def summarize_and_tag_paper(paper_title, text, storage_root, engine="Gemini", pr
     cli_base_path = os.getenv("AI_CLI_PATH", "/usr/local/bin")
     env["PATH"] = cli_base_path + os.pathsep + "/usr/local/bin:/usr/bin:/bin" + os.pathsep + env.get("PATH", "")
 
-    # 自动继承父进程的代理
-    proxy = os.getenv("SCHOLAR_PROXY") or os.getenv("HTTP_PROXY")
+    # 自动继承父进程的代理，并确保大小写全覆盖
+    proxy = os.getenv("SCHOLAR_PROXY") or os.getenv("HTTP_PROXY") or os.getenv("http_proxy")
     if proxy:
-        env["HTTP_PROXY"] = env["HTTPS_PROXY"] = env["ALL_PROXY"] = proxy
+        for p in ["http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"]:
+            env[p] = proxy
+        env["SCHOLAR_PROXY"] = proxy
 
     bin_name = "gemini"
     if engine.lower() == "claude": bin_name = "claude"
@@ -123,7 +125,11 @@ def summarize_and_tag_paper(paper_title, text, storage_root, engine="Gemini", pr
         print(f"PROGRESS: ❌ 找不到 {bin_name} 工具。请检查设置。")
         return None, None
 
-    cli_cmd = [cli_cmd_path, "-p", prompt]
+    # 根据引擎构建命令
+    if bin_name == "codex":
+        cli_cmd = [cli_cmd_path, "exec", "--skip-git-repo-check", prompt]
+    else:
+        cli_cmd = [cli_cmd_path, "-p", prompt]
 
 
     for attempt in range(3):

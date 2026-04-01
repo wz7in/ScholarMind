@@ -44,7 +44,6 @@
 		A10D04B92F63FDA400E1FE28 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A10D04CF2F66684200E1FE28 /* CategoryLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryLibraryView.swift; sourceTree = "<group>"; };
 		A10D04D02F66684200E1FE28 /* ResearchLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResearchLabView.swift; sourceTree = "<group>"; };
-		A119DCB52F62AB6B002A24FD /* ScholarMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = ScholarMind.app; path = "/Users/wzqin/Library/CloudStorage/OneDrive-个人/ScholarMind/ScholarMind/build/Debug/ScholarMind.app"; sourceTree = "<absolute>"; };
 		A119DCC22F62AB6C002A24FD /* ScholarMindTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScholarMindTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A119DCCC2F62AB6D002A24FD /* ScholarMindUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScholarMindUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A119DCDF2F62ABBC002A24FD /* ScholarMind.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ScholarMind.xcodeproj; sourceTree = "<group>"; };
@@ -57,6 +56,7 @@
 		A119DCF92F63C0BC002A24FD /* MarkdownWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownWebView.swift; sourceTree = "<group>"; };
 		A1A1C9C82F6D443000920399 /* LabThinkingBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabThinkingBubble.swift; sourceTree = "<group>"; };
 		A1E708E32F73E89000FC2F1D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1F827F12F7D082A00B015A5 /* ScholarMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScholarMind.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -109,6 +109,7 @@
 			children = (
 				A119DCC22F62AB6C002A24FD /* ScholarMindTests.xctest */,
 				A119DCCC2F62AB6D002A24FD /* ScholarMindUITests.xctest */,
+				A1F827F12F7D082A00B015A5 /* ScholarMind.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,7 +183,7 @@
 			packageProductDependencies = (
 			);
 			productName = ScholarMind;
-			productReference = A119DCB52F62AB6B002A24FD /* ScholarMind.app */;
+			productReference = A1F827F12F7D082A00B015A5 /* ScholarMind.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A119DCC12F62AB6C002A24FD /* ScholarMindTests */ = {
@@ -403,7 +404,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -460,7 +461,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -485,6 +486,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wzqin.ScholarMind;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -515,6 +517,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wzqin.ScholarMind;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -535,7 +538,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wzqin.ScholarMindTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -555,7 +558,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wzqin.ScholarMindTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -56,7 +56,13 @@ def generate_formal_idea(storage_root, proxy="", engine="Gemini", chrome_context
     
     env = os.environ.copy()
     env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" + os.pathsep + env.get("PATH", "")
-    if proxy: env["HTTP_PROXY"] = env["HTTPS_PROXY"] = env["ALL_PROXY"] = proxy
+    
+    # 全覆盖代理注入
+    active_proxy = proxy or os.getenv("SCHOLAR_PROXY") or os.getenv("HTTP_PROXY")
+    if active_proxy:
+        for p in ["http_proxy", "https_proxy", "all_proxy", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"]:
+            env[p] = active_proxy
+        env["SCHOLAR_PROXY"] = active_proxy
     
     # --- 统一绝对路径映射 ---
     bin_name = "gemini"
@@ -64,7 +70,12 @@ def generate_formal_idea(storage_root, proxy="", engine="Gemini", chrome_context
     elif engine.lower() == "codex": bin_name = "codex"
     
     cli_path = f"/opt/homebrew/bin/{bin_name}"
-    cli_cmd = [cli_path, "-p", prompt]
+    
+    # 构建命令
+    if bin_name == "codex":
+        cli_cmd = [cli_path, "exec", "--skip-git-repo-check", prompt]
+    else:
+        cli_cmd = [cli_path, "-p", prompt]
 
     try:
         result = subprocess.run(cli_cmd, capture_output=True, text=True, check=True, env=env)

@@ -481,6 +481,9 @@ struct ContentView: View {
             env["HTTP_PROXY"] = effectiveProxy
             env["HTTPS_PROXY"] = effectiveProxy
             env["ALL_PROXY"] = effectiveProxy
+            env["http_proxy"] = effectiveProxy
+            env["https_proxy"] = effectiveProxy
+            env["all_proxy"] = effectiveProxy
             env["SCHOLAR_PROXY"] = effectiveProxy
         }
         process.environment = env
@@ -574,6 +577,9 @@ struct ContentView: View {
             env["HTTP_PROXY"] = effectiveProxy
             env["HTTPS_PROXY"] = effectiveProxy
             env["ALL_PROXY"] = effectiveProxy
+            env["http_proxy"] = effectiveProxy
+            env["https_proxy"] = effectiveProxy
+            env["all_proxy"] = effectiveProxy
             env["SCHOLAR_PROXY"] = effectiveProxy
         }
         process.environment = env
