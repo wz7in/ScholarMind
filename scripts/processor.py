@@ -20,8 +20,58 @@ def extract_text_from_pdf(pdf_path, max_pages=15):
     except Exception as e: print(f"PDF 提取错误: {e}")
     return text
 
-def summarize_and_tag_paper(paper_title, text, storage_root, engine="Gemini", priority="low", force_date=None):
-    if not text: return None, None
+def get_ghostscript_path():
+    gs_names = ["gs", "gswin32c", "gswin64c"]
+    for name in gs_names:
+        if shutil.which(name):
+            return shutil.which(name)
+    return None
+
+def compress_pdf(input_file_path, output_file_path, power=2):
+    """Function to compress PDF via Ghostscript command line interface"""
+    quality = {
+        0: "/default",
+        1: "/prepress",
+        2: "/printer",
+        3: "/ebook",
+        4: "/screen"
+    }
+
+    if not os.path.isfile(input_file_path):
+        return False
+
+    gs = get_ghostscript_path()
+    if not gs:
+        print("PROGRESS: ⚠️ 未找到 Ghostscript，跳过压缩。")
+        return False
+
+    initial_size = os.path.getsize(input_file_path)
+    try:
+        subprocess.call(
+            [
+                gs,
+                "-sDEVICE=pdfwrite",
+                "-dCompatibilityLevel=1.4",
+                "-dPDFSETTINGS={}".format(quality[power]),
+                "-dEmbedAllFonts=true",
+                "-dSubsetFonts=true",
+                "-dNOPAUSE",
+                "-dQUIET",
+                "-dBATCH",
+                "-sOutputFile={}".format(output_file_path),
+                input_file_path,
+            ]
+        )
+        final_size = os.path.getsize(output_file_path)
+        ratio = 1 - (final_size / initial_size)
+        print(f"PROGRESS: PDF 压缩完成。压缩率: {ratio:.0%}，最终大小: {final_size / 1024 / 1024:.2f}MB")
+        return True
+    except Exception as e:
+        print(f"PROGRESS: ⚠️ PDF 压缩出错: {e}")
+        return False
+
+def summarize_and_tag_paper(paper_title, text, storage_root, engine="Gemini", priority="low", force_date=None, pdf_path=None):
+    if not text and not pdf_path: return None, None
     tag_pool, cat_pool, ds_pool = [], [], []
     try:
         with open(os.path.join(storage_root, "tags_pool.json"), "r", encoding="utf-8") as f: tag_pool = json.load(f)
@@ -92,9 +142,16 @@ def summarize_and_tag_paper(paper_title, text, storage_root, engine="Gemini", pr
     JSON_START
     {{ "actual_title": "...", "category": "...", "tags": [], "datasets": [], "extracted_date": "{force_date if force_date else 'YYYY-MM-DD'}" }}
     JSON_END
-    正文：{clean_text}
     """
     
+    # 智能决定是否在 Prompt 中包含全文
+    if pdf_path and os.path.exists(pdf_path) and engine.lower() != "codex":
+        # 如果有 PDF 文件且引擎支持，我们只发送指令，不贴原文，防止命令行超长
+        prompt += "\n请直接分析附件中的 PDF 文件内容。"
+    else:
+        # 否则（如 Codex 或无 PDF 时），才贴入提取的文本
+        prompt += f"\n正文内容：\n{clean_text}\n"
+
     env = os.environ.copy()
     cli_base_path = os.getenv("AI_CLI_PATH", "/usr/local/bin")
     env["PATH"] = cli_base_path + os.pathsep + "/usr/local/bin:/usr/bin:/bin" + os.pathsep + env.get("PATH", "")
@@ -129,27 +186,47 @@ def summarize_and_tag_paper(paper_title, text, storage_root, engine="Gemini", pr
     if bin_name == "codex":
         cli_cmd = [cli_cmd_path, "exec", "--skip-git-repo-check", prompt]
     else:
-        cli_cmd = [cli_cmd_path, "-p", prompt]
+        # 修正：Gemini CLI 不允许同时使用 -p 和位置参数（PDF 路径）
+        # 如果提供了 PDF，我们将 Prompt 和 PDF 都作为位置参数传递
+        if pdf_path and os.path.exists(pdf_path):
+            cli_cmd = [cli_cmd_path, prompt, pdf_path]
+        else:
+            cli_cmd = [cli_cmd_path, "-p", prompt]
+
+    print(f"DEBUG: AI Command: {' '.join(cli_cmd[:2])} ... [PDF: {pdf_path if pdf_path else 'None'}]")
 
 
     for attempt in range(3):
         try:
-            # 调高超时至 240s
+            # 调高超时至 240s，开启 check=True 以捕获错误
+            print(f"DEBUG: 正在执行 AI 命令 (尝试 {attempt+1}/3): {' '.join(cli_cmd)}")
             result = subprocess.run(cli_cmd, capture_output=True, text=True, env=env, timeout=240)
             
-            if "Opening authentication page" in result.stdout or "Opening authentication page" in result.stderr:
-                print(f"PROGRESS: ❌ AI 引擎未登录。请在终端运行 '{bin_name} login' 或检查 API 配置。")
-                return None, None
-                
+            if result.returncode != 0:
+                print(f"DEBUG: AI 命令返回非零状态码: {result.returncode}")
+                print(f"DEBUG: STDERR: {result.stderr.strip()}")
+                print(f"DEBUG: STDOUT: {result.stdout.strip()}")
+                if "Opening authentication page" in result.stdout or "Opening authentication page" in result.stderr:
+                    print(f"PROGRESS: ❌ AI 引擎未登录。请在终端运行 '{bin_name} login'。")
+                    return None, None
+                time.sleep(5)
+                continue
+
             full = result.stdout
+            if not full.strip():
+                print(f"DEBUG: AI 返回内容为空。STDERR: {result.stderr.strip()}")
+                time.sleep(5)
+                continue
+
             json_match = re.search(r'JSON_START(.*?)JSON_END', full, re.DOTALL)
             if json_match:
                 meta = json.loads(json_match.group(1).strip())
                 summary = full.replace(f"JSON_START{json_match.group(1)}JSON_END", "").strip()
                 return summary, meta
-        except subprocess.CalledProcessError as e:
-            print(f"DEBUG: AI 分析命令失败 (Exit {e.returncode})")
-            if e.stderr: print(f"DEBUG: 错误详情: {e.stderr.strip()}")
+            else:
+                print(f"DEBUG: AI 返回内容未包含 JSON 标记。收到的前 200 字符: {full[:200]}...")
+        except subprocess.TimeoutExpired:
+            print(f"DEBUG: AI 分析超时 (240s)")
             if attempt == 2: return None, None
             time.sleep(5)
         except Exception as e:
@@ -301,14 +378,31 @@ if __name__ == "__main__":
                             print(f"PROGRESS: {progress_label} 该论文已存在于 {d} 文件夹，跳过"); sys.exit(0)
     
     print(f"PROGRESS: {progress_label} AI 正在分析并提取元数据...")
-    # 如果 text 已经提取过了，就不要重复提取（summarize_and_tag_paper 内部会用到）
-    # 我们这里继续用全量的 text
-    full_text = extract_text_from_pdf(pdf_source)
     
-    # 如果不是 manual (即点击按钮同步的)，则强制使用 date_fallback，不让 AI 提取日期
+    # 智能处理：如果 PDF 过大，则尝试压缩后再发送给 AI
+    processed_pdf = pdf_source
+    is_temp_pdf = False
+    if os.path.exists(pdf_source) and os.path.getsize(pdf_source) > 10 * 1024 * 1024:
+        print(f"PROGRESS: {progress_label} PDF 过大 ({os.path.getsize(pdf_source)/1024/1024:.1f}MB)，正在执行 Ghostscript 压缩...")
+        temp_compressed = os.path.join(os.path.dirname(pdf_source), "temp_compressed_" + os.path.basename(pdf_source))
+        if compress_pdf(pdf_source, temp_compressed, power=2):
+            processed_pdf = temp_compressed
+            is_temp_pdf = True
+
+    full_text = extract_text_from_pdf(processed_pdf)
+    
     force_d = date_fallback if priority != "manual" else None
-    summary, metadata = summarize_and_tag_paper(title, full_text, storage_root, engine, priority, force_date=force_d)
+    summary, metadata = summarize_and_tag_paper(title, full_text, storage_root, engine, priority, force_date=force_d, pdf_path=processed_pdf)
     
+    # 清理临时压缩文件
+    if is_temp_pdf and os.path.exists(processed_pdf):
+        try: os.remove(processed_pdf)
+        except: pass
+    
+    if not summary:
+        print(f"PROGRESS: {progress_label} ❌ AI 未能生成总结，请检查 API 配置或网络。")
+        sys.exit(1)
+
     if summary:
         ai_extracted_date = metadata.get("extracted_date")
         # 如果有强制日期，则直接使用强制日期，忽略 AI 提取的结果
@@ -320,13 +414,21 @@ if __name__ == "__main__":
         if not force_d:
             if not doc_date or not re.match(r"\d{4}-\d{2}-\d{2}", doc_date) or doc_date > datetime.now().strftime("%Y-%m-%d"):
                 doc_date = date_fallback
+        
         actual_title = metadata.get("actual_title", title)
         sub_type = "manual" if priority.startswith("manual") else ("精读论文" if priority == "high" else "粗读论文")
         target_dir = os.path.join(storage_root, "papers", doc_date, sub_type, sanitize_filename(actual_title))
-        os.makedirs(target_dir, exist_ok=True)
-        shutil.copy2(pdf_source, os.path.join(target_dir, "paper.pdf")) if os.path.abspath(pdf_source) != os.path.abspath(os.path.join(target_dir, "paper.pdf")) else None
-        with open(os.path.join(target_dir, "summary.md"), "w", encoding="utf-8") as f: f.write(summary)
-        with open(os.path.join(target_dir, "metadata.json"), "w", encoding="utf-8") as f: json.dump(metadata, f, ensure_ascii=False, indent=4)
+        
+        print(f"DEBUG: Target directory: {target_dir}")
+        try:
+            os.makedirs(target_dir, exist_ok=True)
+            shutil.copy2(pdf_source, os.path.join(target_dir, "paper.pdf")) if os.path.abspath(pdf_source) != os.path.abspath(os.path.join(target_dir, "paper.pdf")) else None
+            with open(os.path.join(target_dir, "summary.md"), "w", encoding="utf-8") as f: f.write(summary)
+            with open(os.path.join(target_dir, "metadata.json"), "w", encoding="utf-8") as f: json.dump(metadata, f, ensure_ascii=False, indent=4)
+            print(f"PROGRESS: {progress_label} 文件已保存到: {target_dir}")
+        except Exception as e:
+            print(f"PROGRESS: {progress_label} ❌ 保存文件失败: {e}")
+            sys.exit(1)
         
         if not skip_report and not priority.startswith("manual"):
             print(priority)
