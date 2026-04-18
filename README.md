@@ -5,7 +5,7 @@
 ---
 
 ## 📖 简介
-**ScholarMind** 是专为 macOS 设计的下一代 AI 驱动个人科研情报中心。它通过整合先进的 AI 模型（Gemini, Claude, Codex），帮助科研工作者自动化追踪、阅读并孵化科研灵感。
+**ScholarMind** 是专为 macOS 设计的下一代 AI 驱动个人科研情报中心。它通过整合先进的 AI 模型（Gemini, Claude, Codex, DeepSeek），帮助科研工作者自动化追踪、阅读并孵化科研灵感。
 
 ## ✨ 核心特性
 
@@ -41,6 +41,10 @@
 - **AI 命令行工具**: 需安装 `gemini`、`claude` 或 `codex` 等 CLI 工具以驱动 AI 功能。
   - 需要提前登录（如运行 `gemini login`）并完成相关配置。
   - 推荐gemini，整体体验速度更快，而且主要是pro用户免费
+- **DeepSeek（SiliconFlow）HTTP 调用**:
+  - DeepSeek 不依赖本地 CLI，走 SiliconFlow 原生 HTTP 接口。
+  - 请在启动 App 的环境中设置 API Key：`SILICONFLOW_API_KEY`（或 `AI_API_KEY`）。
+  - 模型固定为 `Pro/deepseek-ai/DeepSeek-V3.2`，接口为 `https://api.siliconflow.cn/v1/chat/completions`。
 
 ### 配置步骤
 1. 打开应用并进入 **系统设置**。
@@ -58,4 +62,4 @@
 ## 🛠️ 技术栈
 - **前端**: SwiftUI (macOS 原生)
 - **脚本层**: Python (使用 PyMuPDF, BeautifulSoup 等)
-- **AI 集成**: 基于 CLI 的多引擎调度 (Gemini/Claude/Codex)
+- **AI 集成**: 混合调度（CLI: Gemini/Claude/Codex；HTTP: DeepSeek on SiliconFlow）

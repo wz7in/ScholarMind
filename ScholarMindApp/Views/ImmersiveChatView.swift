@@ -17,6 +17,7 @@ struct ImmersiveChatView: View {
     @State private var includeMyNotes = true
     
     @AppStorage("scholar_proxy") private var savedProxy = ""
+    @AppStorage("siliconflow_api_key") private var siliconflowApiKey = ""
     @AppStorage("selected_ai_engine") private var selectedEngine = "Gemini"
     @AppStorage("ai_cli_path") private var aiCliPath = ""
 
@@ -205,6 +206,24 @@ struct ImmersiveChatView: View {
         
         请结合上述你被授予权访问的背景资料，给出深度、严谨且具有启发性的回答。如果某些信息在背景中不存在，请如实告知。
         """
+
+        if selectedEngine.lowercased() == "deepseek" {
+            requestDeepSeekReply(prompt: finalPrompt) { result in
+                DispatchQueue.main.async {
+                    withAnimation(.spring()) {
+                        switch result {
+                        case .success(let reply):
+                            chatHistory.append(ChatMessage(text: reply, isUser: false))
+                        case .failure(let error):
+                            chatHistory.append(ChatMessage(text: "❌ DeepSeek 请求失败: \(error.localizedDescription)", isUser: false))
+                        }
+                        isGenerating = false
+                        saveHistory()
+                    }
+                }
+            }
+            return
+        }
         
         // 启动 Python/CLI 进程
         DispatchQueue.global(qos: .userInitiated).async {
@@ -245,6 +264,86 @@ struct ImmersiveChatView: View {
                 DispatchQueue.main.async { isGenerating = false }
             }
         }
+    }
+
+    private func requestDeepSeekReply(prompt: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let envKey = ProcessInfo.processInfo.environment["SILICONFLOW_API_KEY"] ?? ProcessInfo.processInfo.environment["AI_API_KEY"]
+        let apiKey = (envKey?.isEmpty == false ? envKey : nil) ?? siliconflowApiKey
+        guard !apiKey.isEmpty else {
+            let err = NSError(domain: "DeepSeek", code: 401, userInfo: [NSLocalizedDescriptionKey: "缺少 API Key，请设置 SILICONFLOW_API_KEY 或 AI_API_KEY。"])
+            completion(.failure(err))
+            return
+        }
+
+        guard let url = URL(string: "https://api.siliconflow.cn/v1/chat/completions") else {
+            completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "无效的请求地址"])))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+        let payload: [String: Any] = [
+            "model": "Pro/deepseek-ai/DeepSeek-V3.2",
+            "messages": [["role": "user", "content": prompt]],
+            "stream": false
+        ]
+
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        } catch {
+            completion(.failure(error))
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "未收到有效响应"])))
+                return
+            }
+
+            guard (200...299).contains(httpResponse.statusCode) else {
+                let msg = Self.extractServerError(from: data) ?? "HTTP \(httpResponse.statusCode)"
+                completion(.failure(NSError(domain: "DeepSeek", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: msg])))
+                return
+            }
+
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let choices = json["choices"] as? [[String: Any]],
+                  let first = choices.first,
+                  let message = first["message"] as? [String: Any] else {
+                completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "返回格式异常"])))
+                return
+            }
+
+            let content = (message["content"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let reasoning = (message["reasoning_content"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let finalText = content.isEmpty ? reasoning : content
+            if finalText.isEmpty {
+                completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "返回内容为空"])))
+                return
+            }
+            completion(.success(finalText))
+        }.resume()
+    }
+
+    private static func extractServerError(from data: Data?) -> String? {
+        guard let data = data,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        if let message = json["message"] as? String, let extra = json["data"] as? String, !extra.isEmpty {
+            return "\(message): \(extra)"
+        }
+        return json["message"] as? String
     }
 
     private func stopChat() { currentProcess?.terminate(); isGenerating = false }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @AppStorage("scholar_cookie") private var savedCookie = ""
+    @AppStorage("siliconflow_api_key") private var siliconflowApiKey = ""
     @AppStorage("scholar_proxy") private var savedProxy = ""
     @AppStorage("use_system_proxy") private var useSystemProxy = false
     @AppStorage("scholar_storage_path") private var storagePath = ""
@@ -23,7 +24,7 @@ struct LoginView: View {
         !storagePath.isEmpty && !pythonPath.isEmpty && !aiCliPath.isEmpty
     }
     
-    let engines = ["Gemini", "Claude", "Codex"]
+    let engines = ["Gemini", "Claude", "Codex", "DeepSeek"]
     
     var body: some View {
         ZStack {
@@ -149,6 +150,7 @@ struct LoginView: View {
                         // 网络设置卡片
                         settingCard(title: "网络与同步", subtitle: "配置代理服务器以确保模型连接稳定", icon: "network", color: .cyan) {
                             VStack(spacing: 15) {
+                                inputField(label: "SILICONFLOW_API_KEY", icon: "lock.shield.fill", text: $siliconflowApiKey, placeholder: "用于 DeepSeek HTTP 调用", isSecure: true)
                                 inputField(label: "手动 HTTP 代理地址", icon: "link", text: $savedProxy, placeholder: "http://127.0.0.1:7890")
                                 inputField(label: "Scholar Inbox 会话 Cookie", icon: "key.fill", text: $savedCookie, placeholder: "session=...", isSecure: true)
                             }

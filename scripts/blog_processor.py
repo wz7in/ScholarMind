@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 import re
 from pathvalidate import sanitize_filename
+from deepseek_http import call_deepseek_chat
 
 def extract_web_content(url):
     try:
@@ -56,6 +57,18 @@ def summarize_blog(url, title, text, storage_root, engine="Gemini"):
     
     原文内容：{text}
     """
+
+    if engine.lower() == "deepseek":
+        try:
+            full = call_deepseek_chat(prompt, timeout=240)
+            summary = full.split("JSON_START")[0].strip()
+            metadata = {}
+            json_match = re.search(r'JSON_START(.*?)JSON_END', full, re.DOTALL)
+            if json_match:
+                metadata = json.loads(json_match.group(1).strip())
+            return summary, metadata
+        except Exception:
+            return None, None
     
     env = os.environ.copy()
     env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" + os.pathsep + env.get("PATH", "")

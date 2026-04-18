@@ -4,6 +4,7 @@ import Combine
 struct ResearchLabView: View {
     @AppStorage("scholar_storage_path") private var storagePath = ""
     @AppStorage("scholar_proxy") private var savedProxy = ""
+    @AppStorage("siliconflow_api_key") private var siliconflowApiKey = ""
     @AppStorage("selected_ai_engine") private var selectedEngine = "Gemini"
     
     // 环境路径配置
@@ -338,6 +339,24 @@ struct ResearchLabView: View {
             请你以学术导师的身份，结合可能的浏览背景（如果有），对其进行深入探讨、提出挑战或完善建议。字数不限，重在启发。
             """
 
+            if selectedEngine.lowercased() == "deepseek" {
+                requestDeepSeekReply(prompt: prompt) { result in
+                    DispatchQueue.main.async {
+                        withAnimation(.spring()) {
+                            switch result {
+                            case .success(let reply):
+                                chatHistory.append(ChatMessage(id: UUID(), text: reply.trimmingCharacters(in: .whitespacesAndNewlines), isUser: false, date: Date().description))
+                            case .failure(let error):
+                                chatHistory.append(ChatMessage(id: UUID(), text: "❌ DeepSeek 请求失败: \(error.localizedDescription)", isUser: false, date: Date().description))
+                            }
+                            isGeneratingChat = false
+                        }
+                        saveHistory()
+                    }
+                }
+                return
+            }
+
             let process = Process()
             let binName = selectedEngine.lowercased()
             let aiCliUrl = URL(fileURLWithPath: aiCliPath).appendingPathComponent(binName)
@@ -370,6 +389,86 @@ struct ResearchLabView: View {
                 DispatchQueue.main.async { isGeneratingChat = false }
             }
         }
+    }
+
+    private func requestDeepSeekReply(prompt: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let envKey = ProcessInfo.processInfo.environment["SILICONFLOW_API_KEY"] ?? ProcessInfo.processInfo.environment["AI_API_KEY"]
+        let apiKey = (envKey?.isEmpty == false ? envKey : nil) ?? siliconflowApiKey
+        guard !apiKey.isEmpty else {
+            let err = NSError(domain: "DeepSeek", code: 401, userInfo: [NSLocalizedDescriptionKey: "缺少 API Key，请设置 SILICONFLOW_API_KEY 或 AI_API_KEY。"])
+            completion(.failure(err))
+            return
+        }
+
+        guard let url = URL(string: "https://api.siliconflow.cn/v1/chat/completions") else {
+            completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "无效的请求地址"])))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+        let payload: [String: Any] = [
+            "model": "Pro/deepseek-ai/DeepSeek-V3.2",
+            "messages": [["role": "user", "content": prompt]],
+            "stream": false
+        ]
+
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        } catch {
+            completion(.failure(error))
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "未收到有效响应"])))
+                return
+            }
+
+            guard (200...299).contains(httpResponse.statusCode) else {
+                let msg = Self.extractServerError(from: data) ?? "HTTP \(httpResponse.statusCode)"
+                completion(.failure(NSError(domain: "DeepSeek", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: msg])))
+                return
+            }
+
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let choices = json["choices"] as? [[String: Any]],
+                  let first = choices.first,
+                  let message = first["message"] as? [String: Any] else {
+                completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "返回格式异常"])))
+                return
+            }
+
+            let content = (message["content"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let reasoning = (message["reasoning_content"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let finalText = content.isEmpty ? reasoning : content
+            if finalText.isEmpty {
+                completion(.failure(NSError(domain: "DeepSeek", code: -1, userInfo: [NSLocalizedDescriptionKey: "返回内容为空"])))
+                return
+            }
+            completion(.success(finalText))
+        }.resume()
+    }
+
+    private static func extractServerError(from data: Data?) -> String? {
+        guard let data = data,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        if let message = json["message"] as? String, let extra = json["data"] as? String, !extra.isEmpty {
+            return "\(message): \(extra)"
+        }
+        return json["message"] as? String
     }
 
     private func saveAsDiary() {
@@ -425,6 +524,10 @@ struct ResearchLabView: View {
             
             var env = ProcessInfo.processInfo.environment
             env["PATH"] = "\(aiCliPath):/usr/bin:/bin:/usr/sbin:/sbin:\(env["PATH"] ?? "")"
+            if !siliconflowApiKey.isEmpty {
+                env["SILICONFLOW_API_KEY"] = siliconflowApiKey
+                env["AI_API_KEY"] = siliconflowApiKey
+            }
             process.environment = env
             
             let pipe = Pipe()

@@ -3,6 +3,7 @@ import os
 import subprocess
 import json
 from datetime import datetime, timedelta
+from deepseek_http import call_deepseek_chat
 
 def get_recent_context(storage_root, days=7):
     context = ""
@@ -53,6 +54,19 @@ def generate_formal_idea(storage_root, proxy="", engine="Gemini", chrome_context
     2. 将 Chrome 中的搜索和技术点与论文背景结合，提出跨学科或跨模块的创新点。
     3. 输出 Markdown 格式，包含：核心 Idea、创新性分析、技术路线路线及潜在挑战。
     """
+
+    if engine.lower() == "deepseek":
+        try:
+            idea_content = call_deepseek_chat(prompt, timeout=300)
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            target_dir = os.path.join(storage_root, "ideas", today_str)
+            os.makedirs(target_dir, exist_ok=True)
+            save_path = os.path.join(target_dir, "proposals.md")
+            with open(save_path, "a", encoding="utf-8") as f:
+                f.write(f"\n\n{idea_content}\n")
+            return idea_content
+        except Exception as e:
+            return f"❌ 生成失败: {str(e)}"
     
     env = os.environ.copy()
     env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" + os.pathsep + env.get("PATH", "")

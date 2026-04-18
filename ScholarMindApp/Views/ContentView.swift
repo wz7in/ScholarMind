@@ -26,6 +26,7 @@ struct ContentView: View {
     @AppStorage("scholar_proxy") private var savedProxy = ""
     @AppStorage("use_system_proxy") private var useSystemProxy = false
     @AppStorage("scholar_cookie") private var savedCookie = ""
+    @AppStorage("siliconflow_api_key") private var siliconflowApiKey = ""
     @AppStorage("selected_ai_engine") private var selectedEngine = "Gemini"
     @AppStorage("has_entered_app") private var hasEntered = false
 
@@ -87,8 +88,12 @@ struct ContentView: View {
         }
         .alert(isPresented: $showLoginAlert) {
             Alert(
-                title: Text("AI 引擎未登录"),
-                message: Text("检测到 \(selectedEngine) 尚未完成授权。请在终端运行 '\(selectedEngine.lowercased()) login' 完成登录，然后重试。"),
+                title: Text(selectedEngine.lowercased() == "deepseek" ? "AI 鉴权失败" : "AI 引擎未登录"),
+                message: Text(
+                    selectedEngine.lowercased() == "deepseek"
+                    ? "检测到 DeepSeek 鉴权失败。请在设置页填写 SILICONFLOW_API_KEY，或在启动环境中设置 SILICONFLOW_API_KEY（或 AI_API_KEY）后重试。"
+                    : "检测到 \(selectedEngine) 尚未完成授权。请在终端运行 '\(selectedEngine.lowercased()) login' 完成登录，然后重试。"
+                ),
                 dismissButton: .default(Text("知道了"))
             )
         }
@@ -216,7 +221,7 @@ struct ContentView: View {
             }
             HStack(spacing: 12) {
                 if isImportingBlog { HStack(spacing: 8) { ProgressView().controlSize(.small); Text(blogImportStatus).font(.system(size: 12, weight: .bold)) }.padding(.horizontal, 15).padding(.vertical, 10).background(.ultraThinMaterial).cornerRadius(20) }
-                else { Button(action: { withAnimation { currentImportType = .url; activeTab = .importPaper } }) { HStack { Image(systemName: "plus.circle.fill"); Text("添加博文") }.padding(.horizontal, 15).padding(.vertical, 10).background(Color.green).foregroundColor(.white).cornerRadius(20) }.buttonStyle(.plain) }
+                else { Button(action: { withAnimation { currentImportType = .url; activeTab = .importPaper } }) { HStack { Image(systemName: "plus.circle.fill"); Text("添加Blog") }.padding(.horizontal, 15).padding(.vertical, 10).background(Color.green).foregroundColor(.white).cornerRadius(20) }.buttonStyle(.plain) }
             }.padding(30)
         }
     }
@@ -380,6 +385,10 @@ struct ContentView: View {
             DispatchQueue.global().async {
                 let process = Process(); process.executableURL = URL(fileURLWithPath: pythonPath); process.arguments = [scriptPath, url, storagePath, selectedEngine]
                 self.currentProcess = process; var env = ProcessInfo.processInfo.environment
+                if !siliconflowApiKey.isEmpty {
+                    env["SILICONFLOW_API_KEY"] = siliconflowApiKey
+                    env["AI_API_KEY"] = siliconflowApiKey
+                }
                 if !effectiveProxy.isEmpty { env["HTTP_PROXY"] = effectiveProxy; env["HTTPS_PROXY"] = effectiveProxy; env["ALL_PROXY"] = effectiveProxy }; process.environment = env
                 try? process.run(); process.waitUntilExit()
                 DispatchQueue.main.async { self.isImportingBlog = false; self.currentProcess = nil; self.dataManager.loadPapers() }
@@ -407,6 +416,10 @@ struct ContentView: View {
                     self.currentProcess = process; let pipe = Pipe(); process.standardOutput = pipe
                     var env = ProcessInfo.processInfo.environment; 
                     env["AI_CLI_PATH"] = aiCliPath
+                    if !siliconflowApiKey.isEmpty {
+                        env["SILICONFLOW_API_KEY"] = siliconflowApiKey
+                        env["AI_API_KEY"] = siliconflowApiKey
+                    }
                     if !effectiveProxy.isEmpty { env["HTTP_PROXY"] = effectiveProxy; env["HTTPS_PROXY"] = effectiveProxy; env["ALL_PROXY"] = effectiveProxy; env["SCHOLAR_PROXY"] = effectiveProxy }
                     process.environment = env
                     
@@ -477,6 +490,10 @@ struct ContentView: View {
         var env = ProcessInfo.processInfo.environment
         env["PATH"] = "\(aiCliPath):/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:\(env["PATH"] ?? "")"
         env["AI_CLI_PATH"] = aiCliPath
+        if !siliconflowApiKey.isEmpty {
+            env["SILICONFLOW_API_KEY"] = siliconflowApiKey
+            env["AI_API_KEY"] = siliconflowApiKey
+        }
         if !effectiveProxy.isEmpty {
             env["HTTP_PROXY"] = effectiveProxy
             env["HTTPS_PROXY"] = effectiveProxy
@@ -506,7 +523,7 @@ struct ContentView: View {
                             self.syncProgress = "同步失败 (401)"
                             self.showCookieAlert = true
                             self.isSyncing = false
-                        } else if msg.contains("AI 引擎未登录") {
+                        } else if msg.contains("AI 引擎未登录") || msg.contains("DeepSeek API Key") || msg.contains("SILICONFLOW_API_KEY") {
                             self.syncProgress = "❌ 未登录"
                             self.showLoginAlert = true
                             self.isSyncing = false
@@ -573,6 +590,10 @@ struct ContentView: View {
         var env = ProcessInfo.processInfo.environment
         env["PATH"] = "\(aiCliPath):/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:\(env["PATH"] ?? "")"
         env["AI_CLI_PATH"] = aiCliPath
+        if !siliconflowApiKey.isEmpty {
+            env["SILICONFLOW_API_KEY"] = siliconflowApiKey
+            env["AI_API_KEY"] = siliconflowApiKey
+        }
         if !effectiveProxy.isEmpty {
             env["HTTP_PROXY"] = effectiveProxy
             env["HTTPS_PROXY"] = effectiveProxy
